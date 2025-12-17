@@ -9,6 +9,8 @@ use App\Banking\Accounts\Domain\Enums\AccountTypeEnum;
 use App\Banking\Accounts\Presentation\Http\Requests\OpenAccountRequest;
 use App\Banking\Accounts\Presentation\Http\Resources\AccountResource;
 use Illuminate\Http\JsonResponse;
+use App\Banking\Accounts\Application\UseCases\GetMyAccountTree;
+use App\Banking\Accounts\Presentation\Http\Resources\AccountTreeResource;
 
 class AccountsController
 {
@@ -37,5 +39,13 @@ class AccountsController
             ->additional(['message' => 'تم إنشاء الحساب بنجاح'])
             ->response()
             ->setStatusCode(201);
+    }
+
+    public function tree(GetMyAccountTree $useCase)
+    {
+        $userId = (int) auth()->id();
+        $group = $useCase->handle($userId);
+
+        return new AccountTreeResource($group);
     }
 }
