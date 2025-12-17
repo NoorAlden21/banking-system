@@ -18,6 +18,7 @@ use App\Banking\Accounts\Application\UseCases\ChangeAccountState;
 use App\Banking\Accounts\Application\UseCases\OnboardCustomerWithAccounts;
 use App\Banking\Accounts\Presentation\Http\Requests\ChangeStateRequest;
 use App\Banking\Accounts\Presentation\Http\Requests\OnboardCustomerRequest;
+use App\Models\User;
 
 class AccountsController
 {
@@ -83,6 +84,29 @@ class AccountsController
                 'phone' => $user->phone,
             ],
             'accounts' => AccountResource::collection($opened),
+        ], 201);
+    }
+
+    public function openForUser(int $userId, OpenAccountRequest $request, OpenAccount $useCase): JsonResponse
+    {
+        $user = User::query()->find($userId);
+        if (!$user) {
+            return response()->json([
+                'message' => 'المستخدم غير موجود',
+            ], 404);
+        }
+
+        $dto = new OpenAccountData(
+            type: AccountTypeEnum::from($request->string('type')->toString()),
+            dailyLimit: $request->filled('daily_limit') ? (string) $request->input('daily_limit') : null,
+            monthlyLimit: $request->filled('monthly_limit') ? (string) $request->input('monthly_limit') : null,
+        );
+
+        $account = $useCase->handle($userId, $dto);
+
+        return response()->json([
+            'message' => 'تم فتح الحساب للمستخدم بنجاح',
+            'data' => new AccountResource($account),
         ], 201);
     }
 
