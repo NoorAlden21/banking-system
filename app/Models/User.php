@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -21,6 +22,8 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone',
+        'public_id',
         'password',
     ];
 
@@ -45,5 +48,14 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $user) {
+            if (empty($user->public_id)) {
+                $user->public_id = (string) Str::uuid();
+            }
+        });
     }
 }

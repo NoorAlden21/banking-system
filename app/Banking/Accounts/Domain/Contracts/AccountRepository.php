@@ -23,4 +23,6 @@ interface AccountRepository
     public function listByUser(int $userId): array;
 
     public function findByPublicId(string $publicId): ?Account;
+
+    public function updateStateByPublicId(string $publicId, string $newState): Account;
 }

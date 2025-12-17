@@ -6,6 +6,8 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
+use Illuminate\Http\Request;
+use App\Banking\Accounts\Domain\Exceptions\InvalidAccountStateTransition;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -21,6 +23,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => RoleOrPermissionMiddleware::class,
         ]);
     })
+    ->withProviders([
+        \App\Providers\EventServiceProvider::class,
+    ])
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->render(function (InvalidAccountStateTransition $e, Request $request) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 422);
+        });
     })->create();

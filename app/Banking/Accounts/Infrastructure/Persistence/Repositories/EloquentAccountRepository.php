@@ -71,6 +71,28 @@ class EloquentAccountRepository implements AccountRepository
         return $model ? $this->toEntity($model) : null;
     }
 
+    public function updateStateByPublicId(string $publicId, string $newState): Account
+    {
+        $model = AccountModel::query()
+            ->where('public_id', $publicId)
+            ->first();
+
+        if (!$model) {
+            throw new \RuntimeException('الحساب غير موجود');
+        }
+
+        $model->state = $newState;
+
+        if ($newState === 'closed') {
+            $model->closed_at = now();
+        }
+
+        $model->save();
+
+        return $this->toEntity($model);
+    }
+
+
     private function toEntity(AccountModel $m): Account
     {
         return new Account(
