@@ -15,6 +15,9 @@ Route::middleware(['auth:sanctum'])->prefix('accounts')->group(function () {
     Route::post('/users/{userId}', [AccountsController::class, 'openForUser'])
         ->middleware('permission:accounts.open');
 
+    Route::get('/admin/users-with-accounts', [AccountsController::class, 'usersWithAccounts'])
+        ->middleware('permission:accounts.view-all');
+
     Route::patch('/{publicId}/state', [AccountsController::class, 'changeState'])
         ->middleware('permission:accounts.change-state');
 });

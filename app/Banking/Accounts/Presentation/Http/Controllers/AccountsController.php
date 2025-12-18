@@ -18,6 +18,9 @@ use App\Banking\Accounts\Application\UseCases\ChangeAccountState;
 use App\Banking\Accounts\Application\UseCases\OnboardCustomerWithAccounts;
 use App\Banking\Accounts\Presentation\Http\Requests\ChangeStateRequest;
 use App\Banking\Accounts\Presentation\Http\Requests\OnboardCustomerRequest;
+use App\Banking\Accounts\Application\UseCases\ListUsersWithAccounts;
+use App\Banking\Accounts\Presentation\Http\Requests\ListUsersWithAccountsRequest;
+
 use App\Models\User;
 
 class AccountsController
@@ -129,5 +132,26 @@ class AccountsController
         return (new AccountResource($updated))
             ->additional(['message' => 'تم تغيير حالة الحساب'])
             ->response();
+    }
+
+    public function usersWithAccounts(
+        ListUsersWithAccountsRequest $request,
+        ListUsersWithAccounts $useCase
+    ): JsonResponse {
+        $data = $useCase->handle(
+            limit: $request->limit(),
+            page: $request->page(),
+            includeGroup: $request->includeGroup(),
+            onlyCustomers: $request->onlyCustomers(),
+            search: $request->search()
+        );
+
+        return response()->json([
+            'data' => $data,
+            'meta' => [
+                'limit' => $request->limit(),
+                'page' => $request->page(),
+            ],
+        ]);
     }
 }
