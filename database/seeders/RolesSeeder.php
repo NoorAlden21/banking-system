@@ -22,10 +22,11 @@ class RolesSeeder extends Seeder
         $customersCreate = Permission::findOrCreate('customers.create');
         $accountsOpen    = Permission::findOrCreate('accounts.open');
         $changeState     = Permission::findOrCreate('accounts.change-state');
+        $viewAll         = Permission::findOrCreate('accounts.view-all');
 
         // Staff permissions
-        $admin->givePermissionTo([$customersCreate, $accountsOpen, $changeState]);
-        $manager->givePermissionTo([$customersCreate, $accountsOpen, $changeState]);
+        $admin->givePermissionTo([$customersCreate, $accountsOpen, $changeState, $viewAll]);
+        $manager->givePermissionTo([$customersCreate, $accountsOpen, $changeState, $viewAll]);
         $teller->givePermissionTo([$customersCreate, $accountsOpen]);
 
         // customer لا شيء هنا
