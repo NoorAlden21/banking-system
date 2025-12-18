@@ -8,6 +8,7 @@ use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 use Illuminate\Http\Request;
 use App\Banking\Accounts\Domain\Exceptions\InvalidAccountStateTransition;
+use App\Banking\Auth\Domain\Exceptions\InvalidCredentials;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -31,5 +32,8 @@ return Application::configure(basePath: dirname(__DIR__))
             return response()->json([
                 'message' => $e->getMessage(),
             ], 422);
+        });
+        $exceptions->render(function (InvalidCredentials $e, Request $request) {
+            return response()->json(['message' => $e->getMessage()], 401);
         });
     })->create();

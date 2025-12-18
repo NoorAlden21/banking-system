@@ -28,6 +28,8 @@ final class OnboardCustomerWithAccounts
                 'email' => $data->customer->email,
                 'phone' => $data->customer->phone,
                 'password' => Hash::make($plainPassword),
+                'must_change_password' => true,
+                'password_changed_at' => null,
             ]);
 
             $user->syncRoles(['customer']);

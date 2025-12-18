@@ -25,6 +25,8 @@ class User extends Authenticatable
         'phone',
         'public_id',
         'password',
+        'must_change_password' => 'boolean',
+        'password_changed_at' => 'datetime',
     ];
 
     /**
