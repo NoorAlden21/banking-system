@@ -13,7 +13,7 @@ use App\Banking\Transactions\Domain\Contracts\AccountGateway;
 use App\Banking\Transactions\Domain\Contracts\TransactionRepository;
 use App\Banking\Transactions\Domain\Contracts\LedgerRepository;
 use App\Banking\Transactions\Domain\Contracts\ApprovalRepository;
-
+use App\Banking\Transactions\Domain\Entities\TransactionForPosting;
 use App\Banking\Transactions\Domain\Enums\TransactionTypeEnum;
 use App\Banking\Transactions\Domain\Enums\TransactionStatusEnum;
 use App\Banking\Transactions\Domain\Enums\LedgerDirectionEnum;
@@ -90,13 +90,16 @@ final class TransactionProcessor
         );
     }
 
-    public function withdraw(int $initiatorUserId, WithdrawData $data): TransactionOutcome
+    public function withdraw(int $initiatorUserId, WithdrawData $data,  bool $canOperateAny): TransactionOutcome
     {
         $currency = (string) Config::get('banking.currency', 'USD');
 
         $locked = $this->accounts->lockByPublicIdsForUpdate([$data->accountPublicId]);
         $account = $locked[$data->accountPublicId] ?? null;
 
+        if (!$canOperateAny && $account->userId !== $initiatorUserId) {
+            throw new TransactionRuleViolation('لا تملك صلاحية السحب من هذا الحساب');
+        }
         if (!$account) throw new TransactionRuleViolation('الحساب غير موجود');
         if ($account->type === 'group') throw new TransactionRuleViolation('لا يمكن السحب من حساب group');
         if ($account->state !== 'active') throw new TransactionRuleViolation('الحساب غير نشط لإجراء عملية');
@@ -152,7 +155,7 @@ final class TransactionProcessor
         );
     }
 
-    public function transfer(int $initiatorUserId, TransferData $data): TransactionOutcome
+    public function transfer(int $initiatorUserId, TransferData $data,  bool $canOperateAny): TransactionOutcome
     {
         $currency = (string) Config::get('banking.currency', 'USD');
         $threshold = (string) Config::get('banking.approvals.manager_threshold', '10000.00');
@@ -170,6 +173,11 @@ final class TransactionProcessor
         ]);
 
         $source = $locked[$data->sourceAccountPublicId] ?? null;
+
+        if (!$canOperateAny && $source->userId !== $initiatorUserId) {
+            throw new TransactionRuleViolation('لا تملك صلاحية التحويل من هذا الحساب');
+        }
+
         $dest   = $locked[$data->destinationAccountPublicId] ?? null;
 
         if (!$source || !$dest) throw new TransactionRuleViolation('حساب مصدر/وجهة غير موجود');
@@ -248,6 +256,77 @@ final class TransactionProcessor
             message: 'تم التحويل بنجاح',
             transactionPublicId: $tx->publicId,
             status: $tx->status,
+            data: [
+                'source_new_balance' => $sourceAfter,
+                'destination_new_balance' => $destAfter,
+            ]
+        );
+    }
+
+    public function postApprovedTransfer(int $managerUserId, TransactionForPosting $tx): TransactionOutcome
+    {
+        if ($tx->type !== 'transfer') {
+            throw new TransactionRuleViolation('الموافقة متاحة فقط لتحويلات transfer');
+        }
+        if (!$tx->sourceAccountId || !$tx->destinationAccountId) {
+            throw new TransactionRuleViolation('بيانات الحسابات ناقصة');
+        }
+
+        if ($this->ledgerRepo->existsForTransaction($tx->id)) {
+            throw new \RuntimeException('تم ترحيل هذه المعاملة بالفعل');
+        }
+
+        $source = $this->accounts->lockByIdForUpdate($tx->sourceAccountId);
+        $dest   = $this->accounts->lockByIdForUpdate($tx->destinationAccountId);
+
+        if (!$source || !$dest) throw new TransactionRuleViolation('حساب غير موجود');
+        if ($source->type === 'group' || $dest->type === 'group') throw new TransactionRuleViolation('لا يمكن التحويل من/إلى حساب group');
+        if ($source->state !== 'active' || $dest->state !== 'active') throw new TransactionRuleViolation('حساب غير نشط');
+
+        $sourceBefore = $source->balance;
+        $sourceAfter  = bcsub($sourceBefore, $tx->amount, 2);
+        if (bccomp($sourceAfter, '0.00', 2) < 0) throw new \App\Banking\Transactions\Domain\Exceptions\InsufficientFunds('رصيد غير كافٍ');
+
+        $destBefore = $dest->balance;
+        $destAfter  = bcadd($destBefore, $tx->amount, 2);
+
+        $this->ledgerRepo->create([
+            'transaction_id' => $tx->id,
+            'account_id' => $source->id,
+            'direction' => LedgerDirectionEnum::DEBIT->value,
+            'amount' => $tx->amount,
+            'currency' => $tx->currency,
+            'balance_before' => $sourceBefore,
+            'balance_after' => $sourceAfter,
+        ]);
+
+        $this->ledgerRepo->create([
+            'transaction_id' => $tx->id,
+            'account_id' => $dest->id,
+            'direction' => LedgerDirectionEnum::CREDIT->value,
+            'amount' => $tx->amount,
+            'currency' => $tx->currency,
+            'balance_before' => $destBefore,
+            'balance_after' => $destAfter,
+        ]);
+
+        $this->accounts->updateBalance($source->id, $sourceAfter);
+        $this->accounts->updateBalance($dest->id, $destAfter);
+
+        // parent cached balances
+        if ($source->parentId) {
+            $p = $this->accounts->lockByIdForUpdate($source->parentId);
+            if ($p) $this->accounts->updateBalance($p->id, bcsub($p->balance, $tx->amount, 2));
+        }
+        if ($dest->parentId) {
+            $p = $this->accounts->lockByIdForUpdate($dest->parentId);
+            if ($p) $this->accounts->updateBalance($p->id, bcadd($p->balance, $tx->amount, 2));
+        }
+
+        return new TransactionOutcome(
+            message: 'تمت الموافقة وترحيل المعاملة بنجاح',
+            transactionPublicId: $tx->publicId,
+            status: 'posted',
             data: [
                 'source_new_balance' => $sourceAfter,
                 'destination_new_balance' => $destAfter,

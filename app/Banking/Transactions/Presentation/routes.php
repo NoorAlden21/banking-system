@@ -5,6 +5,19 @@ use App\Banking\Transactions\Presentation\Http\Controllers\TransactionsControlle
 
 Route::middleware(['auth:sanctum'])->prefix('transactions')->group(function () {
 
+    Route::get('/', [TransactionsController::class, 'index'])
+        ->middleware('permission:transactions.view');
+
+    // alias واضح للموافقات
+    Route::get('/pending-approvals', [TransactionsController::class, 'pendingApprovals'])
+        ->middleware('permission:transactions.approve');
+
+    Route::get('/{publicId}', [TransactionsController::class, 'show'])
+        ->middleware('permission:transactions.view');
+
+    Route::post('/{publicId}/decision', [TransactionsController::class, 'decision'])
+        ->middleware('permission:transactions.approve');
+
     // عمليات مالية (Idempotency-Key REQUIRED)
     Route::post('/deposit',  [TransactionsController::class, 'deposit'])
         ->middleware('permission:transactions.deposit');
@@ -14,8 +27,4 @@ Route::middleware(['auth:sanctum'])->prefix('transactions')->group(function () {
 
     Route::post('/transfer', [TransactionsController::class, 'transfer'])
         ->middleware('permission:transactions.transfer');
-
-    // لاحقًا:
-    // Route::get('/', [TransactionsController::class, 'index'])->middleware('permission:transactions.view');
-    // Route::get('/{publicId}', [TransactionsController::class, 'show'])->middleware('permission:transactions.view');
 });

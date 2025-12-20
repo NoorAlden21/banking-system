@@ -25,13 +25,13 @@ final class BankingFacade
         return $this->deposit->handle($userId, $data);
     }
 
-    public function withdraw(int $userId, WithdrawData $data): TransactionOutcome
+    public function withdraw(int $userId, WithdrawData $data, bool $canOperateAny): TransactionOutcome
     {
-        return $this->withdraw->handle($userId, $data);
+        return $this->withdraw->handle($userId, $data, $canOperateAny);
     }
 
-    public function transfer(int $userId, TransferData $data): TransactionOutcome
+    public function transfer(int $userId, TransferData $data, bool $canOperateAny): TransactionOutcome
     {
-        return $this->transfer->handle($userId, $data);
+        return $this->transfer->handle($userId, $data, $canOperateAny);
     }
 }

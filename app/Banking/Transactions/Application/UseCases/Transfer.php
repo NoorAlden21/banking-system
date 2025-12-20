@@ -12,8 +12,8 @@ final class Transfer
     {
     }
 
-    public function handle(int $initiatorUserId, TransferData $data): TransactionOutcome
+    public function handle(int $initiatorUserId, TransferData $data, bool $canOperateAny): TransactionOutcome
     {
-        return $this->processor->transfer($initiatorUserId, $data);
+        return $this->processor->transfer($initiatorUserId, $data, $canOperateAny);
     }
 }

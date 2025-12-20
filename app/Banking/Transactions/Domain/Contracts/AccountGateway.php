@@ -6,6 +6,7 @@ final class LockedAccount
 {
     public function __construct(
         public readonly int $id,
+        public readonly int $userId,
         public readonly string $publicId,
         public readonly ?int $parentId,
         public readonly string $type,

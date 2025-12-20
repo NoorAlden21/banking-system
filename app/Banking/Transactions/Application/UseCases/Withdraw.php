@@ -12,8 +12,8 @@ final class Withdraw
     {
     }
 
-    public function handle(int $initiatorUserId, WithdrawData $data): TransactionOutcome
+    public function handle(int $initiatorUserId, WithdrawData $data, bool $canOperateAny): TransactionOutcome
     {
-        return $this->processor->withdraw($initiatorUserId, $data);
+        return $this->processor->withdraw($initiatorUserId, $data, $canOperateAny);
     }
 }

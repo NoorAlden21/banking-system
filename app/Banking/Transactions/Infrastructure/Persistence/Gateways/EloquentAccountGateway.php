@@ -22,6 +22,7 @@ final class EloquentAccountGateway implements AccountGateway
         foreach ($models as $m) {
             $map[(string) $m->public_id] = new LockedAccount(
                 id: (int) $m->id,
+                userId: (int) $m->user_id,
                 publicId: (string) $m->public_id,
                 parentId: $m->parent_id ? (int) $m->parent_id : null,
                 type: (string) $m->type,
@@ -39,6 +40,7 @@ final class EloquentAccountGateway implements AccountGateway
 
         return new LockedAccount(
             id: (int) $m->id,
+            userId: (int) $m->user_id,
             publicId: (string) $m->public_id,
             parentId: $m->parent_id ? (int) $m->parent_id : null,
             type: (string) $m->type,

@@ -15,6 +15,10 @@ use App\Banking\Transactions\Infrastructure\Persistence\Repositories\EloquentApp
 use App\Banking\Transactions\Infrastructure\Persistence\Gateways\EloquentAccountGateway;
 
 use App\Banking\Transactions\Application\Facades\BankingFacade;
+use App\Banking\Transactions\Domain\Contracts\LimitUsageRepository;
+use App\Banking\Transactions\Domain\Contracts\TransactionReadRepository;
+use App\Banking\Transactions\Infrastructure\Persistence\Repositories\EloquentLimitUsageRepository;
+use App\Banking\Transactions\Infrastructure\Persistence\Repositories\EloquentTransactionReadRepository;
 
 final class TransactionsServiceProvider extends ServiceProvider
 {
@@ -25,6 +29,16 @@ final class TransactionsServiceProvider extends ServiceProvider
 
         $this->app->bind(AccountGateway::class, EloquentAccountGateway::class);
         $this->app->bind(ApprovalRepository::class, EloquentApprovalRepository::class);
+
+        $this->app->bind(
+            TransactionReadRepository::class,
+            EloquentTransactionReadRepository::class
+        );
+
+        $this->app->bind(
+            LimitUsageRepository::class,
+            EloquentLimitUsageRepository::class
+        );
 
         // Facade كـConcrete class (الـcontainer هيحقنه عادي)
         $this->app->singleton(BankingFacade::class, BankingFacade::class);

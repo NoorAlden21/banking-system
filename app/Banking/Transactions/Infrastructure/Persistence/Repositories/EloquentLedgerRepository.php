@@ -11,4 +11,11 @@ final class EloquentLedgerRepository implements LedgerRepository
     {
         LedgerEntryModel::query()->create($data);
     }
+
+    public function existsForTransaction(int $transactionId): bool
+    {
+        return LedgerEntryModel::query()
+            ->where('transaction_id', $transactionId)
+            ->exists();
+    }
 }
