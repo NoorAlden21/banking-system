@@ -2,50 +2,57 @@
 
 namespace App\Banking\Transactions\Domain\Patterns\ChainOfResponsibility;
 
-use Carbon\Carbon;
-use App\Banking\Transactions\Domain\Contracts\LimitUsageRepository;
+use Illuminate\Support\Carbon;
+
+use App\Banking\Transactions\Domain\Contracts\TransactionReadRepository;
 use App\Banking\Transactions\Domain\Exceptions\TransactionRuleViolation;
 
-final class LimitChecks extends TxHandler
+final class LimitChecks implements TxStep
 {
-    public function __construct(private readonly LimitUsageRepository $limits)
+    public function __construct(private readonly TransactionReadRepository $reads)
     {
     }
 
-    public function handle(TxContext $ctx): TxContext
+    public function handle(TxContext $ctx, callable $next): array
     {
-        // فقط على withdraw/transfer (outflow من source)
-        if (!in_array($ctx->type, ['withdraw', 'transfer'], true)) {
-            return $this->next($ctx);
+        if (!($ctx->isWithdraw() || $ctx->isTransfer())) {
+            return $next($ctx);
         }
 
-        $acc = $ctx->sourceAccount;
-        if (!$acc) return $this->next($ctx);
+        $source = $ctx->source;
+        if (!$source) return $next($ctx);
 
-        // daily limit
-        if ($ctx->dailyLimit !== null) {
-            $from = Carbon::now()->startOfDay()->toDateTimeString();
-            $to   = Carbon::now()->endOfDay()->toDateTimeString();
-            $used = $this->limits->sumOutflows($acc->id, $from, $to);
-            $after = bcadd($used, $ctx->amount, 2);
+        // daily/monthly limits from account
+        $daily = $source->dailyLimit;     // string|null
+        $monthly = $source->monthlyLimit; // string|null
 
-            if (bccomp($after, $ctx->dailyLimit, 2) === 1) {
-                throw new TransactionRuleViolation('تجاوز الحد اليومي للحساب');
+        $now = Carbon::now();
+
+        // posted_at ranges
+        $dayFrom = $now->copy()->startOfDay()->toDateTimeString();
+        $dayTo   = $now->copy()->endOfDay()->toDateTimeString();
+
+        $monthFrom = $now->copy()->startOfMonth()->startOfDay()->toDateTimeString();
+        $monthTo   = $now->copy()->endOfMonth()->endOfDay()->toDateTimeString();
+
+        if ($daily !== null) {
+            $used = $this->reads->sumPostedOutflowForAccount($source->id, $dayFrom, $dayTo);
+            $newTotal = bcadd($used, $ctx->amount, 2);
+
+            if (bccomp($newTotal, $daily, 2) === 1) {
+                throw new TransactionRuleViolation("تجاوز الحد اليومي للحساب (daily_limit={$daily})");
             }
         }
 
-        // monthly limit
-        if ($ctx->monthlyLimit !== null) {
-            $from = Carbon::now()->startOfMonth()->toDateTimeString();
-            $to   = Carbon::now()->endOfMonth()->toDateTimeString();
-            $used = $this->limits->sumOutflows($acc->id, $from, $to);
-            $after = bcadd($used, $ctx->amount, 2);
+        if ($monthly !== null) {
+            $used = $this->reads->sumPostedOutflowForAccount($source->id, $monthFrom, $monthTo);
+            $newTotal = bcadd($used, $ctx->amount, 2);
 
-            if (bccomp($after, $ctx->monthlyLimit, 2) === 1) {
-                throw new TransactionRuleViolation('تجاوز الحد الشهري للحساب');
+            if (bccomp($newTotal, $monthly, 2) === 1) {
+                throw new TransactionRuleViolation("تجاوز الحد الشهري للحساب (monthly_limit={$monthly})");
             }
         }
 
-        return $this->next($ctx);
+        return $next($ctx);
     }
 }

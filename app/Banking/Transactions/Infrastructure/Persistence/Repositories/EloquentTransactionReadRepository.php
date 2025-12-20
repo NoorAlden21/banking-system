@@ -212,4 +212,17 @@ final class EloquentTransactionReadRepository implements TransactionReadReposito
             ],
         ];
     }
+
+    public function sumPostedOutflowForAccount(int $sourceAccountId, string $from, string $to): string
+    {
+        $sum = TransactionModel::query()
+            ->where('status', 'posted')
+            ->where('source_account_id', $sourceAccountId)
+            ->whereIn('type', ['withdraw', 'transfer'])
+            ->whereNotNull('posted_at')
+            ->whereBetween('posted_at', [$from, $to])
+            ->sum('amount');
+
+        return number_format((float) $sum, 2, '.', '');
+    }
 }

@@ -11,6 +11,8 @@ final class TransactionForPosting
         public readonly string $status,
         public readonly ?int $sourceAccountId,
         public readonly ?int $destinationAccountId,
+        public readonly ?string $sourceAccountPublicId,
+        public readonly ?string $destinationAccountPublicId,
         public readonly string $amount,
         public readonly string $currency,
         public readonly ?string $description,

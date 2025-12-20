@@ -3,8 +3,8 @@
 namespace App\Banking\Transactions\Infrastructure\Persistence\Gateways;
 
 use App\Banking\Transactions\Domain\Contracts\AccountGateway;
-use App\Banking\Transactions\Domain\Contracts\LockedAccount;
 use App\Banking\Accounts\Infrastructure\Persistence\Models\AccountModel;
+use App\Banking\Transactions\Domain\Entities\LockedAccount;
 
 final class EloquentAccountGateway implements AccountGateway
 {
@@ -28,6 +28,8 @@ final class EloquentAccountGateway implements AccountGateway
                 type: (string) $m->type,
                 state: (string) $m->state,
                 balance: (string) $m->balance,
+                dailyLimit: $m->daily_limit !== null ? (string) $m->daily_limit : null,
+                monthlyLimit: $m->monthly_limit !== null ? (string) $m->monthly_limit : null,
             );
         }
         return $map;
@@ -46,6 +48,8 @@ final class EloquentAccountGateway implements AccountGateway
             type: (string) $m->type,
             state: (string) $m->state,
             balance: (string) $m->balance,
+            dailyLimit: $m->daily_limit !== null ? (string) $m->daily_limit : null,
+            monthlyLimit: $m->monthly_limit !== null ? (string) $m->monthly_limit : null,
         );
     }
 

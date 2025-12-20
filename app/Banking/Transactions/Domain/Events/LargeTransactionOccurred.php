@@ -8,7 +8,9 @@ final class LargeTransactionOccurred implements ShouldDispatchAfterCommit
 {
     public function __construct(
         public readonly string $transactionPublicId,
-        public readonly string $amount
+        public readonly string $amount,
+        public readonly string $type,
+        public readonly string $currency,
     ) {
     }
 }

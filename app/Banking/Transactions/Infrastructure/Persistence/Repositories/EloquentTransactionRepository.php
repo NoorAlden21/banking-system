@@ -49,6 +49,8 @@ final class EloquentTransactionRepository implements TransactionRepository
             status: (string) $m->status,
             sourceAccountId: $m->source_account_id ? (int) $m->source_account_id : null,
             destinationAccountId: $m->destination_account_id ? (int) $m->destination_account_id : null,
+            sourceAccountPublicId: $m->source_account_public_id ? (string) $m->source_account_public_id : null,
+            destinationAccountPublicId: $m->destination_account_public_id ? (string) $m->destination_account_public_id : null,
             amount: (string) $m->amount,
             currency: (string) $m->currency,
             description: $m->description,

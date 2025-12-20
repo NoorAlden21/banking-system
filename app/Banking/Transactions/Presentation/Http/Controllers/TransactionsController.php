@@ -100,14 +100,16 @@ final class TransactionsController
             note: $request->note()
         );
 
-        // لو approve وstatus posted -> dispatch event after commit
         if (($res['status'] ?? null) === 'posted') {
-            event(new TransactionPosted((string) $res['transaction_public_id']));
+            $txPublicId = (string) $res['transaction_public_id'];
+
+            DB::afterCommit(function () use ($txPublicId) {
+                event(new TransactionPosted($txPublicId));
+            });
         }
 
         return response()->json($res, 200);
     }
-
     private function idemKeyOrFail(): string
     {
         $key = request()->header('Idempotency-Key');

@@ -13,4 +13,6 @@ interface TransactionReadRepository
     public function findDetailForUser(string $publicId, int $userId): ?array;
 
     public function findDetail(string $publicId): ?array;
+
+    public function sumPostedOutflowForAccount(int $sourceAccountId, string $from, string $to): string;
 }

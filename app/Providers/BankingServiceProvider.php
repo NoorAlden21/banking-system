@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Banking\Accounts\Infrastructure\Providers\AccountsServiceProvider;
 use App\Banking\Auth\Infrastructure\Providers\AuthServiceProvider;
+use App\Banking\Notifications\Infrastructure\Providers\NotificationsServiceProvider;
 use App\Banking\Transactions\Infrastructure\Providers\TransactionsServiceProvider;
 use Illuminate\Support\ServiceProvider;
 
@@ -14,6 +15,7 @@ class BankingServiceProvider extends ServiceProvider
         $this->app->register(AccountsServiceProvider::class);
         $this->app->register(AuthServiceProvider::class);
         $this->app->register(TransactionsServiceProvider::class);
+        $this->app->register(NotificationsServiceProvider::class);
     }
 
     public function boot(): void
