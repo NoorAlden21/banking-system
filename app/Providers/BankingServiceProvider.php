@@ -10,6 +10,7 @@ use App\Banking\Auth\Infrastructure\Providers\AuthServiceProvider;
 use App\Banking\Transactions\Infrastructure\Providers\TransactionsServiceProvider;
 use App\Banking\Reports\Infrastructure\Providers\ReportsServiceProvider;
 use App\Banking\Admin\Infrastructure\Providers\AdminServiceProvider;
+use App\Banking\Payments\Infrastructure\Providers\PaymentsServiceProvider;
 
 final class BankingServiceProvider extends ServiceProvider
 {
@@ -23,5 +24,7 @@ final class BankingServiceProvider extends ServiceProvider
 
         $this->app->register(ReportsServiceProvider::class);
         $this->app->register(AdminServiceProvider::class);
+
+        $this->app->register(PaymentsServiceProvider::class);
     }
 }

@@ -43,6 +43,8 @@ final class RolesSeeder extends Seeder
         $transactionsWithdraw   = Permission::findOrCreate('transactions.withdraw');
         $transactionsTransfer   = Permission::findOrCreate('transactions.transfer');
 
+        $transactionsDepositExternal = Permission::findOrCreate('transactions.deposit-external');
+
         /**
          * =========================
          * Scheduled Transactions
@@ -84,6 +86,7 @@ final class RolesSeeder extends Seeder
             $transactionsDeposit,
             $transactionsWithdraw,
             $transactionsTransfer,
+            $transactionsDepositExternal,
 
             $schView,
             $schCreate,
@@ -111,6 +114,7 @@ final class RolesSeeder extends Seeder
             $transactionsDeposit,
             $transactionsWithdraw,
             $transactionsTransfer,
+            $transactionsDepositExternal,
 
             $schView,
             $schCreate,
@@ -121,6 +125,7 @@ final class RolesSeeder extends Seeder
 
             $adminDashboard,
             $reportsView,
+
         ]);
 
         // Teller: عمليات مالية + scheduled (اختياري حسب نظامكم)
@@ -133,6 +138,7 @@ final class RolesSeeder extends Seeder
             $transactionsDeposit,
             $transactionsWithdraw,
             $transactionsTransfer,
+            $transactionsDepositExternal,
 
             $schView,
             $schCreate,
@@ -149,6 +155,7 @@ final class RolesSeeder extends Seeder
             $transactionsView,
             $transactionsWithdraw,
             $transactionsTransfer,
+            $transactionsDepositExternal,
 
             $schView,
             $schCreate,

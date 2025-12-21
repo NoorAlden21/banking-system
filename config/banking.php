@@ -16,4 +16,8 @@ return [
         'enabled' => true,
         'block_threshold' => env('BANKING_AML_BLOCK_THRESHOLD', '99999999.00'),
     ],
+
+    'payments' => [
+        'default_gateway' => env('PAYMENTS_DEFAULT_GATEWAY', 'card'), // card | wire | legacy
+    ],
 ];

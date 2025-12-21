@@ -1,5 +1,6 @@
 <?php
 
+use App\Banking\Transactions\Presentation\Http\Controllers\GatewayDepositsController;
 use App\Banking\Transactions\Presentation\Http\Controllers\ScheduledTransactionsController;
 use Illuminate\Support\Facades\Route;
 use App\Banking\Transactions\Presentation\Http\Controllers\TransactionsController;
@@ -26,6 +27,9 @@ Route::middleware(['auth:sanctum'])->prefix('transactions')->group(function () {
             ->whereUuid('publicId')
             ->middleware('permission:scheduled-transactions.delete');
     });
+
+    Route::post('/deposit-external', [GatewayDepositsController::class, 'depositExternal'])
+        ->middleware('permission:transactions.deposit-external');
 
     Route::get('/', [TransactionsController::class, 'index'])
         ->middleware('permission:transactions.view');
