@@ -28,7 +28,7 @@ return new class extends Migration
                 'pending_customer',
                 'resolved',
                 'closed',
-            ])->default('open')->index();
+            ])->default('pending_staff')->index();
 
             $table->timestamp('last_message_at')->nullable()->index();
             $table->timestamp('resolved_at')->nullable();

@@ -157,6 +157,10 @@ class AccountsController
                 accounts: $accounts,
             ));
 
+            $plainPassword = (string) ($result['plain_password'] ?? '');
+            $shouldReveal = app()->environment(['local', 'testing']); // ✅ ALWAYS in local/testing
+
+
             /** @var \App\Models\User $user */
             $user = $result['user'];
             $opened = $result['accounts'];
@@ -172,6 +176,7 @@ class AccountsController
                     'public_id' => $user->public_id,
                     'email' => $user->email,
                     'phone' => $user->phone,
+                    'temporary_password' => $shouldReveal ? $plainPassword : null,
                 ],
                 'accounts' => AccountResource::collection($opened),
             ], 201);

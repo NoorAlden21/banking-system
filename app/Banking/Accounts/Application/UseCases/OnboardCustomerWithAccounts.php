@@ -49,6 +49,7 @@ final class OnboardCustomerWithAccounts
             return [
                 'user' => $user,
                 'accounts' => $opened,
+                'plain_password' => $plainPassword,
             ];
         });
     }
