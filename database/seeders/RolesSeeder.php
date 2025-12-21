@@ -45,6 +45,17 @@ class RolesSeeder extends Seeder
 
         /**
          * =========================
+         * Scheduled Transactions
+         * =========================
+         */
+        $schView    = Permission::findOrCreate('scheduled-transactions.view');
+        $schCreate  = Permission::findOrCreate('scheduled-transactions.create');
+        $schUpdate  = Permission::findOrCreate('scheduled-transactions.update');
+        $schDelete  = Permission::findOrCreate('scheduled-transactions.delete');
+        $schViewAll = Permission::findOrCreate('scheduled-transactions.view-all'); // للـstaff فقط
+
+        /**
+         * =========================
          * Assign permissions
          * =========================
          */
@@ -63,6 +74,12 @@ class RolesSeeder extends Seeder
             $transactionsDeposit,
             $transactionsWithdraw,
             $transactionsTransfer,
+
+            $schView,
+            $schCreate,
+            $schUpdate,
+            $schDelete,
+            $schViewAll,
         ]);
 
         // Manager: full access + approvals
@@ -79,6 +96,12 @@ class RolesSeeder extends Seeder
             $transactionsDeposit,
             $transactionsWithdraw,
             $transactionsTransfer,
+
+            $schView,
+            $schCreate,
+            $schUpdate,
+            $schDelete,
+            $schViewAll,
         ]);
 
         // Teller: عمليات مالية + (اختياري) view، لكن بدون view-all وبدون approvals
@@ -91,6 +114,11 @@ class RolesSeeder extends Seeder
             $transactionsDeposit,
             $transactionsWithdraw,
             $transactionsTransfer,
+
+            $schView,
+            $schCreate,
+            $schUpdate,
+            $schDelete,
         ]);
 
         // Customer: يشوف معاملاته فقط + يسحب/يحوّل من حساباته فقط
@@ -99,6 +127,10 @@ class RolesSeeder extends Seeder
             $transactionsView,
             $transactionsWithdraw,
             $transactionsTransfer,
+            $schView,
+            $schCreate,
+            $schUpdate,
+            $schDelete,
         ]);
 
         // لو قررت لاحقًا تخلي العميل يعمل deposit لنفسه:

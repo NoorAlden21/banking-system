@@ -1,5 +1,6 @@
 <?php
 
+use App\Banking\Transactions\Presentation\Http\Controllers\ScheduledTransactionsController;
 use Illuminate\Support\Facades\Route;
 use App\Banking\Transactions\Presentation\Http\Controllers\TransactionsController;
 
@@ -27,4 +28,22 @@ Route::middleware(['auth:sanctum'])->prefix('transactions')->group(function () {
 
     Route::post('/transfer', [TransactionsController::class, 'transfer'])
         ->middleware('permission:transactions.transfer');
+
+    Route::prefix('scheduled')->group(function () {
+
+        Route::get('/', [ScheduledTransactionsController::class, 'index'])
+            ->middleware('permission:scheduled-transactions.view');
+
+        Route::post('/', [ScheduledTransactionsController::class, 'store'])
+            ->middleware('permission:scheduled-transactions.create');
+
+        Route::get('/{publicId}', [ScheduledTransactionsController::class, 'show'])
+            ->middleware('permission:scheduled-transactions.view');
+
+        Route::patch('/{publicId}', [ScheduledTransactionsController::class, 'update'])
+            ->middleware('permission:scheduled-transactions.update');
+
+        Route::delete('/{publicId}', [ScheduledTransactionsController::class, 'destroy'])
+            ->middleware('permission:scheduled-transactions.delete');
+    });
 });

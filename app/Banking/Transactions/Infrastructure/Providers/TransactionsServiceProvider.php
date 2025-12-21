@@ -16,9 +16,15 @@ use App\Banking\Transactions\Infrastructure\Persistence\Gateways\EloquentAccount
 
 use App\Banking\Transactions\Application\Facades\BankingFacade;
 use App\Banking\Transactions\Domain\Contracts\LimitUsageRepository;
+use App\Banking\Transactions\Domain\Contracts\ScheduledTransactionReadRepository;
+use App\Banking\Transactions\Domain\Contracts\ScheduledTransactionRepository;
 use App\Banking\Transactions\Domain\Contracts\TransactionReadRepository;
+use App\Banking\Transactions\Domain\Services\ScheduledNextRunCalculator;
 use App\Banking\Transactions\Infrastructure\Persistence\Repositories\EloquentLimitUsageRepository;
+use App\Banking\Transactions\Infrastructure\Persistence\Repositories\EloquentScheduledTransactionReadRepository;
+use App\Banking\Transactions\Infrastructure\Persistence\Repositories\EloquentScheduledTransactionRepository;
 use App\Banking\Transactions\Infrastructure\Persistence\Repositories\EloquentTransactionReadRepository;
+use App\Banking\Transactions\Presentation\Console\Commands\RunDueScheduledTransactionsCommand;
 
 final class TransactionsServiceProvider extends ServiceProvider
 {
@@ -40,7 +46,20 @@ final class TransactionsServiceProvider extends ServiceProvider
             EloquentLimitUsageRepository::class
         );
 
+        $this->app->bind(ScheduledTransactionRepository::class, EloquentScheduledTransactionRepository::class);
+        $this->app->bind(ScheduledTransactionReadRepository::class, EloquentScheduledTransactionReadRepository::class);
+
         // Facade كـConcrete class (الـcontainer هيحقنه عادي)
         $this->app->singleton(BankingFacade::class, BankingFacade::class);
+        $this->app->singleton(ScheduledNextRunCalculator::class);
+    }
+
+    public function boot(): void
+    {
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                RunDueScheduledTransactionsCommand::class,
+            ]);
+        }
     }
 }
