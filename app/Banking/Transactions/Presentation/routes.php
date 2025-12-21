@@ -6,29 +6,6 @@ use App\Banking\Transactions\Presentation\Http\Controllers\TransactionsControlle
 
 Route::middleware(['auth:sanctum'])->prefix('transactions')->group(function () {
 
-    Route::get('/', [TransactionsController::class, 'index'])
-        ->middleware('permission:transactions.view');
-
-    // alias واضح للموافقات
-    Route::get('/pending-approvals', [TransactionsController::class, 'pendingApprovals'])
-        ->middleware('permission:transactions.approve');
-
-    Route::get('/{publicId}', [TransactionsController::class, 'show'])
-        ->middleware('permission:transactions.view');
-
-    Route::post('/{publicId}/decision', [TransactionsController::class, 'decision'])
-        ->middleware('permission:transactions.approve');
-
-    // عمليات مالية (Idempotency-Key REQUIRED)
-    Route::post('/deposit',  [TransactionsController::class, 'deposit'])
-        ->middleware('permission:transactions.deposit');
-
-    Route::post('/withdraw', [TransactionsController::class, 'withdraw'])
-        ->middleware('permission:transactions.withdraw');
-
-    Route::post('/transfer', [TransactionsController::class, 'transfer'])
-        ->middleware('permission:transactions.transfer');
-
     Route::prefix('scheduled')->group(function () {
 
         Route::get('/', [ScheduledTransactionsController::class, 'index'])
@@ -38,12 +15,39 @@ Route::middleware(['auth:sanctum'])->prefix('transactions')->group(function () {
             ->middleware('permission:scheduled-transactions.create');
 
         Route::get('/{publicId}', [ScheduledTransactionsController::class, 'show'])
+            ->whereUuid('publicId')
             ->middleware('permission:scheduled-transactions.view');
 
         Route::patch('/{publicId}', [ScheduledTransactionsController::class, 'update'])
+            ->whereUuid('publicId')
             ->middleware('permission:scheduled-transactions.update');
 
         Route::delete('/{publicId}', [ScheduledTransactionsController::class, 'destroy'])
+            ->whereUuid('publicId')
             ->middleware('permission:scheduled-transactions.delete');
     });
+
+    Route::get('/', [TransactionsController::class, 'index'])
+        ->middleware('permission:transactions.view');
+
+    Route::get('/pending-approvals', [TransactionsController::class, 'pendingApprovals'])
+        ->middleware('permission:transactions.approve');
+
+    // ✅ constrain publicId as UUID
+    Route::get('/{publicId}', [TransactionsController::class, 'show'])
+        ->whereUuid('publicId')
+        ->middleware('permission:transactions.view');
+
+    Route::post('/{publicId}/decision', [TransactionsController::class, 'decision'])
+        ->whereUuid('publicId')
+        ->middleware('permission:transactions.approve');
+
+    Route::post('/deposit',  [TransactionsController::class, 'deposit'])
+        ->middleware('permission:transactions.deposit');
+
+    Route::post('/withdraw', [TransactionsController::class, 'withdraw'])
+        ->middleware('permission:transactions.withdraw');
+
+    Route::post('/transfer', [TransactionsController::class, 'transfer'])
+        ->middleware('permission:transactions.transfer');
 });

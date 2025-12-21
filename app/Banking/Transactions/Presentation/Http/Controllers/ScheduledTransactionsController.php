@@ -26,10 +26,12 @@ final class ScheduledTransactionsController
         $user = $request->user();
         $canViewAll = $user->can('scheduled-transactions.view-all');
 
+        $scope = $request->filled('scope') ? $request->scope() : ($canViewAll ? 'all' : 'mine');
+
         $result = $useCase->handle(
             actorUserId: (int) $user->id,
             canViewAll: $canViewAll,
-            scope: $request->scope(),
+            scope: $scope,
             filters: $request->filters(),
             perPage: $request->perPage(),
             page: $request->page(),
@@ -46,10 +48,12 @@ final class ScheduledTransactionsController
         $user = $request->user();
         $canViewAll = $user->can('scheduled-transactions.view-all');
 
+        $scope = $request->filled('scope') ? $request->scope() : ($canViewAll ? 'all' : 'mine');
+
         $detail = $useCase->handle(
             actorUserId: (int) $user->id,
             canViewAll: $canViewAll,
-            scope: $request->scope(),
+            scope: $scope,
             publicId: $publicId
         );
 

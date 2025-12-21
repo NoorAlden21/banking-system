@@ -7,3 +7,16 @@ Route::prefix('v1')->group(function () {
     require app_path('Banking/Accounts/Presentation/routes.php');
     require app_path('Banking/Transactions/Presentation/routes.php');
 });
+
+
+
+// use Illuminate\Support\Facades\Route;
+
+// Route::prefix('v1')->group(function () {
+//     require app_path('Banking/Accounts/Presentation/routes.php');
+//     require app_path('Banking/Auth/Presentation/routes.php');
+//     require app_path('Banking/Transactions/Presentation/routes.php');
+
+//     require app_path('Banking/Reports/Presentation/routes.php');
+//     require app_path('Banking/Admin/Presentation/routes.php');
+// });

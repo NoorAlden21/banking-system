@@ -7,7 +7,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
 
-class RolesSeeder extends Seeder
+final class RolesSeeder extends Seeder
 {
     public function run(): void
     {
@@ -24,44 +24,46 @@ class RolesSeeder extends Seeder
          * Accounts / Customers
          * =========================
          */
-        $customersCreate   = Permission::findOrCreate('customers.create');
-        $accountsOpen      = Permission::findOrCreate('accounts.open');
+        $customersCreate     = Permission::findOrCreate('customers.create');
+        $accountsOpen        = Permission::findOrCreate('accounts.open');
         $accountsChangeState = Permission::findOrCreate('accounts.change-state');
-        $accountsViewAll   = Permission::findOrCreate('accounts.view-all');
+        $accountsViewAll     = Permission::findOrCreate('accounts.view-all');
 
         /**
          * =========================
          * Transactions
          * =========================
          */
-        $transactionsView     = Permission::findOrCreate('transactions.view');      // index/show
-        $transactionsViewAll  = Permission::findOrCreate('transactions.view-all');  // scope=all
-        $transactionsApprove  = Permission::findOrCreate('transactions.approve');   // pending + decision
-        $transactionsOperateAny = Permission::findOrCreate('transactions.operate-any'); // staff can withdraw/transfer from any account
+        $transactionsView       = Permission::findOrCreate('transactions.view');
+        $transactionsViewAll    = Permission::findOrCreate('transactions.view-all');
+        $transactionsApprove    = Permission::findOrCreate('transactions.approve');
+        $transactionsOperateAny = Permission::findOrCreate('transactions.operate-any');
 
-        $transactionsDeposit  = Permission::findOrCreate('transactions.deposit');
-        $transactionsWithdraw = Permission::findOrCreate('transactions.withdraw');
-        $transactionsTransfer = Permission::findOrCreate('transactions.transfer');
+        $transactionsDeposit    = Permission::findOrCreate('transactions.deposit');
+        $transactionsWithdraw   = Permission::findOrCreate('transactions.withdraw');
+        $transactionsTransfer   = Permission::findOrCreate('transactions.transfer');
 
         /**
          * =========================
          * Scheduled Transactions
          * =========================
          */
-        $schView    = Permission::findOrCreate('scheduled-transactions.view');
-        $schCreate  = Permission::findOrCreate('scheduled-transactions.create');
-        $schUpdate  = Permission::findOrCreate('scheduled-transactions.update');
-        $schDelete  = Permission::findOrCreate('scheduled-transactions.delete');
-        $schViewAll = Permission::findOrCreate('scheduled-transactions.view-all'); // للـstaff فقط
+        $schView       = Permission::findOrCreate('scheduled-transactions.view');
+        $schCreate     = Permission::findOrCreate('scheduled-transactions.create');
+        $schUpdate     = Permission::findOrCreate('scheduled-transactions.update');
+        $schDelete     = Permission::findOrCreate('scheduled-transactions.delete');
+        $schViewAll    = Permission::findOrCreate('scheduled-transactions.view-all');
+        $schManageAny  = Permission::findOrCreate('scheduled-transactions.manage-any'); // ✅ المهمّة
 
         /**
          * =========================
          * Assign permissions
          * =========================
+         * ملاحظة: استخدمت syncPermissions عشان يبقى seeder idempotent ومش يراكم.
          */
 
         // Admin: full access
-        $admin->givePermissionTo([
+        $admin->syncPermissions([
             $customersCreate,
             $accountsOpen,
             $accountsChangeState,
@@ -80,10 +82,11 @@ class RolesSeeder extends Seeder
             $schUpdate,
             $schDelete,
             $schViewAll,
+            $schManageAny, // ✅
         ]);
 
         // Manager: full access + approvals
-        $manager->givePermissionTo([
+        $manager->syncPermissions([
             $customersCreate,
             $accountsOpen,
             $accountsChangeState,
@@ -102,10 +105,11 @@ class RolesSeeder extends Seeder
             $schUpdate,
             $schDelete,
             $schViewAll,
+            $schManageAny, // ✅
         ]);
 
-        // Teller: عمليات مالية + (اختياري) view، لكن بدون view-all وبدون approvals
-        $teller->givePermissionTo([
+        // Teller: عمليات مالية + scheduled (اختياري حسب نظامكم)
+        $teller->syncPermissions([
             $customersCreate,
             $accountsOpen,
 
@@ -119,21 +123,22 @@ class RolesSeeder extends Seeder
             $schCreate,
             $schUpdate,
             $schDelete,
+
+            // لو teller لازم يقدر يدير أي scheduled لعميل:
+            // $schManageAny,
+            // $schViewAll,
         ]);
 
-        // Customer: يشوف معاملاته فقط + يسحب/يحوّل من حساباته فقط
-        // (ownership يتم enforced في TransactionProcessor وليس بالpermission)
-        $customer->givePermissionTo([
+        // Customer: يدير scheduled الخاصة به فقط (بدون view-all / manage-any)
+        $customer->syncPermissions([
             $transactionsView,
             $transactionsWithdraw,
             $transactionsTransfer,
+
             $schView,
             $schCreate,
             $schUpdate,
             $schDelete,
         ]);
-
-        // لو قررت لاحقًا تخلي العميل يعمل deposit لنفسه:
-        // $customer->givePermissionTo([$transactionsDeposit]);
     }
 }
