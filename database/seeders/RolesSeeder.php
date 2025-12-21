@@ -72,6 +72,20 @@ final class RolesSeeder extends Seeder
          * ملاحظة: استخدمت syncPermissions عشان يبقى seeder idempotent ومش يراكم.
          */
 
+        /**
+         * =========================
+         * Customer Support (Tickets)
+         * =========================
+         */
+        $supportView         = Permission::findOrCreate('support.tickets.view');
+        $supportViewAll      = Permission::findOrCreate('support.tickets.view-all');
+        $supportCreate       = Permission::findOrCreate('support.tickets.create');
+        $supportReply        = Permission::findOrCreate('support.tickets.reply');
+        $supportAssign       = Permission::findOrCreate('support.tickets.assign');
+        $supportChangeStatus = Permission::findOrCreate('support.tickets.change-status');
+        $supportDelete       = Permission::findOrCreate('support.tickets.delete');
+        $supportInternalNote = Permission::findOrCreate('support.tickets.internal-note');
+
         // Admin: full access
         $admin->syncPermissions([
             $customersCreate,
@@ -98,6 +112,15 @@ final class RolesSeeder extends Seeder
             $adminDashboard,
             $reportsView,
             $auditView,
+
+            $supportView,
+            $supportViewAll,
+            $supportCreate,
+            $supportReply,
+            $supportAssign,
+            $supportChangeStatus,
+            $supportDelete,
+            $supportInternalNote,
         ]);
 
         // Manager: full access + approvals
@@ -126,6 +149,14 @@ final class RolesSeeder extends Seeder
             $adminDashboard,
             $reportsView,
 
+            $supportView,
+            $supportViewAll,
+            $supportCreate,
+            $supportReply,
+            $supportAssign,
+            $supportChangeStatus,
+            $supportDelete,
+            $supportInternalNote,
         ]);
 
         // Teller: عمليات مالية + scheduled (اختياري حسب نظامكم)
@@ -161,6 +192,11 @@ final class RolesSeeder extends Seeder
             $schCreate,
             $schUpdate,
             $schDelete,
+
+            $supportView,
+            $supportCreate,
+            $supportReply,
+            $supportChangeStatus,
         ]);
     }
 }

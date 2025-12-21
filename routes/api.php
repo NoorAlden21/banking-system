@@ -9,4 +9,6 @@ Route::prefix('v1')->group(function () {
 
     require app_path('Banking/Reports/Presentation/routes.php');
     require app_path('Banking/Admin/Presentation/routes.php');
+
+    require app_path('Banking/CustomerSupport/Presentation/routes.php');
 });
