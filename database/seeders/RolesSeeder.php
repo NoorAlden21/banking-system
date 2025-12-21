@@ -86,6 +86,16 @@ final class RolesSeeder extends Seeder
         $supportDelete       = Permission::findOrCreate('support.tickets.delete');
         $supportInternalNote = Permission::findOrCreate('support.tickets.internal-note');
 
+        /**
+         * =========================
+         * Account Features
+         * =========================
+         */
+
+        $accFeaturesView = Permission::findOrCreate('accounts.features.view');
+        $accFeaturesManage = Permission::findOrCreate('accounts.features.manage');
+        $accFeaturesManageAny = Permission::findOrCreate('accounts.features.manage-any');
+
         // Admin: full access
         $admin->syncPermissions([
             $customersCreate,
@@ -121,6 +131,10 @@ final class RolesSeeder extends Seeder
             $supportChangeStatus,
             $supportDelete,
             $supportInternalNote,
+
+            $accFeaturesView,
+            $accFeaturesManage,
+            $accFeaturesManageAny,
         ]);
 
         // Manager: full access + approvals
@@ -157,6 +171,10 @@ final class RolesSeeder extends Seeder
             $supportChangeStatus,
             $supportDelete,
             $supportInternalNote,
+
+            $accFeaturesView,
+            $accFeaturesManage,
+            $accFeaturesManageAny,
         ]);
 
         // Teller: عمليات مالية + scheduled (اختياري حسب نظامكم)
@@ -197,6 +215,9 @@ final class RolesSeeder extends Seeder
             $supportCreate,
             $supportReply,
             $supportChangeStatus,
+
+            $accFeaturesView,
+            $accFeaturesManage,
         ]);
     }
 }

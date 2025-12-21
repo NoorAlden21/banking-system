@@ -1,5 +1,6 @@
 <?php
 
+use App\Banking\Accounts\Presentation\Http\Controllers\AccountFeaturesController;
 use Illuminate\Support\Facades\Route;
 use App\Banking\Accounts\Presentation\Http\Controllers\AccountsController;
 
@@ -20,4 +21,22 @@ Route::middleware(['auth:sanctum'])->prefix('accounts')->group(function () {
 
     Route::patch('/{publicId}/state', [AccountsController::class, 'changeState'])
         ->middleware('permission:accounts.change-state');
+
+
+    // Account Features routes
+    Route::prefix('{publicId}')->whereUuid('publicId')->group(function () {
+
+        Route::get('/features', [AccountFeaturesController::class, 'index'])
+            ->middleware('permission:accounts.features.view');
+
+        Route::post('/features', [AccountFeaturesController::class, 'store'])
+            ->middleware('permission:accounts.features.manage');
+
+        Route::delete('/features/{featureKey}', [AccountFeaturesController::class, 'destroy'])
+            ->middleware('permission:accounts.features.manage');
+
+        // best demo endpoint for Decorator
+        Route::get('/capabilities', [AccountFeaturesController::class, 'capabilities'])
+            ->middleware('permission:accounts.features.view');
+    });
 });

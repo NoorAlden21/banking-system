@@ -6,33 +6,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('account_features', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('account_id')
-                ->constrained('accounts')
-                ->cascadeOnDelete();
+            $table->foreignId('account_id')->constrained('accounts')->cascadeOnDelete();
 
-            $table->enum('feature_type', ['overdraft', 'premium', 'insurance']);
+            $table->string('feature_key', 50); // overdraft | premium | insurance
+            $table->enum('status', ['active', 'disabled'])->default('active')->index();
 
-            $table->json('config')->nullable();
-            $table->boolean('is_enabled')->default(true);
+            $table->json('meta')->nullable(); // limit, fee_rate, monthly_fee, etc.
 
             $table->timestamps();
-            $table->softDeletes();
 
-            $table->unique(['account_id', 'feature_type']);
+            $table->unique(['account_id', 'feature_key']);
+            $table->index(['account_id', 'status']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('account_features');
