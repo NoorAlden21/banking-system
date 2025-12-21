@@ -57,6 +57,14 @@ final class RolesSeeder extends Seeder
 
         /**
          * =========================
+         * Reports / Audit Logs
+         * =========================
+         */
+        $adminDashboard = Permission::findOrCreate('admin.dashboard.view');
+        $reportsView    = Permission::findOrCreate('reports.view');
+        $auditView      = Permission::findOrCreate('audit.view');
+        /**
+         * =========================
          * Assign permissions
          * =========================
          * ملاحظة: استخدمت syncPermissions عشان يبقى seeder idempotent ومش يراكم.
@@ -82,7 +90,11 @@ final class RolesSeeder extends Seeder
             $schUpdate,
             $schDelete,
             $schViewAll,
-            $schManageAny, // ✅
+            $schManageAny,
+
+            $adminDashboard,
+            $reportsView,
+            $auditView,
         ]);
 
         // Manager: full access + approvals
@@ -105,7 +117,10 @@ final class RolesSeeder extends Seeder
             $schUpdate,
             $schDelete,
             $schViewAll,
-            $schManageAny, // ✅
+            $schManageAny,
+
+            $adminDashboard,
+            $reportsView,
         ]);
 
         // Teller: عمليات مالية + scheduled (اختياري حسب نظامكم)

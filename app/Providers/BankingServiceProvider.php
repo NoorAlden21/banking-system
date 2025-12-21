@@ -2,52 +2,26 @@
 
 namespace App\Providers;
 
-use App\Banking\Accounts\Infrastructure\Providers\AccountsServiceProvider;
-use App\Banking\Auth\Infrastructure\Providers\AuthServiceProvider;
-use App\Banking\Notifications\Infrastructure\Providers\NotificationsServiceProvider;
-use App\Banking\Transactions\Infrastructure\Providers\TransactionsServiceProvider;
 use Illuminate\Support\ServiceProvider;
 
-class BankingServiceProvider extends ServiceProvider
+use App\Banking\Shared\Infrastructure\Providers\SharedServiceProvider;
+use App\Banking\Accounts\Infrastructure\Providers\AccountsServiceProvider;
+use App\Banking\Auth\Infrastructure\Providers\AuthServiceProvider;
+use App\Banking\Transactions\Infrastructure\Providers\TransactionsServiceProvider;
+use App\Banking\Reports\Infrastructure\Providers\ReportsServiceProvider;
+use App\Banking\Admin\Infrastructure\Providers\AdminServiceProvider;
+
+final class BankingServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->register(SharedServiceProvider::class);
+
         $this->app->register(AccountsServiceProvider::class);
         $this->app->register(AuthServiceProvider::class);
         $this->app->register(TransactionsServiceProvider::class);
-        $this->app->register(NotificationsServiceProvider::class);
-    }
 
-    public function boot(): void
-    {
-        //
+        $this->app->register(ReportsServiceProvider::class);
+        $this->app->register(AdminServiceProvider::class);
     }
 }
-
-
-
-// namespace App\Providers;
-
-// use Illuminate\Support\ServiceProvider;
-
-// use App\Banking\Shared\Infrastructure\Providers\SharedServiceProvider;
-// use App\Banking\Accounts\Infrastructure\Providers\AccountsServiceProvider;
-// use App\Banking\Auth\Infrastructure\Providers\AuthServiceProvider;
-// use App\Banking\Transactions\Infrastructure\Providers\TransactionsServiceProvider;
-// use App\Banking\Reports\Infrastructure\Providers\ReportsServiceProvider;
-// use App\Banking\Admin\Infrastructure\Providers\AdminServiceProvider;
-
-// final class BankingServiceProvider extends ServiceProvider
-// {
-//     public function register(): void
-//     {
-//         $this->app->register(SharedServiceProvider::class);
-
-//         $this->app->register(AccountsServiceProvider::class);
-//         $this->app->register(AuthServiceProvider::class);
-//         $this->app->register(TransactionsServiceProvider::class);
-
-//         $this->app->register(ReportsServiceProvider::class);
-//         $this->app->register(AdminServiceProvider::class);
-//     }
-// }
