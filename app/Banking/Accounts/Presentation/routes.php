@@ -1,6 +1,7 @@
 <?php
 
 use App\Banking\Accounts\Presentation\Http\Controllers\AccountFeaturesController;
+use App\Banking\Accounts\Presentation\Http\Controllers\AccountInterestController;
 use Illuminate\Support\Facades\Route;
 use App\Banking\Accounts\Presentation\Http\Controllers\AccountsController;
 
@@ -38,5 +39,13 @@ Route::middleware(['auth:sanctum'])->prefix('accounts')->group(function () {
         // best demo endpoint for Decorator
         Route::get('/capabilities', [AccountFeaturesController::class, 'capabilities'])
             ->middleware('permission:accounts.features.view');
+
+
+        // Interest routes
+        Route::get('/interest/preview', [AccountInterestController::class, 'preview'])
+            ->middleware('permission:accounts.interest.view');
+
+        Route::post('/interest/apply', [AccountInterestController::class, 'apply'])
+            ->middleware('permission:accounts.interest.apply');
     });
 });

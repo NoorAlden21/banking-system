@@ -96,6 +96,15 @@ final class RolesSeeder extends Seeder
         $accFeaturesManage = Permission::findOrCreate('accounts.features.manage');
         $accFeaturesManageAny = Permission::findOrCreate('accounts.features.manage-any');
 
+        /**
+         * =========================
+         * Account Interest
+         * =========================
+         */
+
+        $accInterestView  = Permission::findOrCreate('accounts.interest.view');
+        $accInterestApply = Permission::findOrCreate('accounts.interest.apply');
+
         // Admin: full access
         $admin->syncPermissions([
             $customersCreate,
@@ -135,9 +144,11 @@ final class RolesSeeder extends Seeder
             $accFeaturesView,
             $accFeaturesManage,
             $accFeaturesManageAny,
+
+            $accInterestView,
+            $accInterestApply,
         ]);
 
-        // Manager: full access + approvals
         $manager->syncPermissions([
             $customersCreate,
             $accountsOpen,
@@ -175,6 +186,9 @@ final class RolesSeeder extends Seeder
             $accFeaturesView,
             $accFeaturesManage,
             $accFeaturesManageAny,
+
+            $accInterestView,
+            $accInterestApply,
         ]);
 
         // Teller: عمليات مالية + scheduled (اختياري حسب نظامكم)
@@ -218,6 +232,8 @@ final class RolesSeeder extends Seeder
 
             $accFeaturesView,
             $accFeaturesManage,
+
+            $accInterestView,
         ]);
     }
 }
